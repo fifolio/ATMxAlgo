@@ -15,18 +15,16 @@ export async function PRUxMRPU_handler() {
             async function incrementRPUHandler() {
                 const res = await incrementRPU();
                 if (res === true) {
-                    console.log('RPU has been incremented by 1');
                     setUpdateUserData(!updateUserData)
                     return true;
                 } else {
-                    console.error('Failed to increment RPU');
                     return false;
                 }
             }
             // Call the incrementRPU function
             incrementRPUHandler();
         } else if (res === 'equal') {
-            console.log(' No more requests can be made this month!');
+            return 'limitWarning';
         } else {
             console.error('Unexpected result when comparing RPU and MRPU:', res);
         }

@@ -18,12 +18,27 @@ export async function login({ email, password }: Login) {
         const hasMRPU = Object.prototype.hasOwnProperty.call(prefs, 'MRPU');
         const resetDate = Object.prototype.hasOwnProperty.call(prefs, 'resetDate');
 
+        // Step 4: Set resetDate default values if they don't exist
+        const now = new Date();
+        const firstOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+        const year = firstOfNextMonth.getFullYear();
+        const month = String(firstOfNextMonth.getMonth() + 1).padStart(2, '0');
+        const nextMonthDate = `${year}-${month}-01`;
+
+        // Step 5: Auto reset RPU if resetDate is in the past
+        const todayStr = now.toISOString().slice(0, 10); // Get current date as 'YYYY-MM-DD'
+        if (prefs.resetDate && prefs.resetDate <= todayStr) {
+            await account.updatePrefs({
+                RPU: 0,
+                resetDate: nextMonthDate
+            });
+        }
 
         if (!hasRPU || !hasMRPU || !resetDate) {
             await account.updatePrefs({
                 RPU: hasRPU ? prefs.RPU : 0,
                 MRPU: hasMRPU ? prefs.MRPU : 50,
-                resetDate: resetDate ? prefs.resetDate : 'null'
+                resetDate: resetDate ? prefs.resetDate : nextMonthDate
             });
         }
 
