@@ -1,6 +1,6 @@
 import { account } from "../../apis/backend/configs/configs";
 
-async function limitWarning() {
+async function command_response_limitWarning() {
 
     const prefs = await account.getPrefs();
 
@@ -11,7 +11,7 @@ async function limitWarning() {
                 You have used all your available RPU (Requests Per User) points for this month.
                 Further requests like "atm predict <...>" are currently disabled.
                     
-                Your quota will reset automatically on: ${prefs.resetDate}-01
+                Your quota will reset automatically on: ${prefs.resetDate}
                 You can check your current usage with the "atm details" command.
                     
                 Tip: You can continue using all free commands in the meantime.
@@ -20,4 +20,4 @@ async function limitWarning() {
     )
 }
 
-export default limitWarning;
+export default command_response_limitWarning;

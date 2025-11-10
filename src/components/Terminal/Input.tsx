@@ -1,14 +1,29 @@
 import { useState, forwardRef, useEffect } from "react";
 import { useHistory, useLoading, useLogin, useSignup, useUser, useUserData } from "../../stores";
-import { details, guests_help, limitWarning, users_help, whoami } from "../../commands";
+import {
+  command_response_guests_help,
+  command_response_users_help,
+  command_response_details,
+  command_response_whoami,
+  command_response_limitWarning,
+  command_response_atm_predict_insights,
+  command_response_atm_predict_bulls,
+  command_response_atm_predict_bears,
+  command_response_atm_best_long,
+  command_response_atm_best_short,
+  command_response_atm_forecast_coin
+} from "../../commands";
 import { useNavigate } from "react-router";
 import { logout } from "../../apis/backend/auth/logout";
-
-// import runMarketInsights from "../../../ciphermind/algorithms/market_insights/runMarketInsights";
-// import { GET_insights } from "../../apis";
-// import incrementRPU from "../../apis/backend/userPrefs/incrementRPU";
-
-import { PRUxMRPU_handler } from "../../algos";
+import {
+  PRUxMRPU_handler,
+  runBestLong,
+  runBestShort,
+  runForecastCoin,
+  runMarketBears,
+  runMarketBulls,
+  runMarketInsights
+} from "../../x";
 
 
 const Input = forwardRef<HTMLInputElement>((_, ref) => {
@@ -23,37 +38,46 @@ const Input = forwardRef<HTMLInputElement>((_, ref) => {
 
   const navigate = useNavigate();
 
+  // Helper function to get metadata with a fresh timestamp
+  const getMetaData = () => {
+    const now = new Date();
+    const time = now.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true,
+    });
+    const date = now.toDateString();
+    const promptId = Math.floor(Math.random() * 1000000);
+    const responseId = Math.floor(Math.random() * 1000000);
+    return { time, date, promptId, responseId };
+  }
 
   async function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key !== "Enter") return;
 
     if (input.trim() === '') return;
 
-    function metaData() {
-      const time = new Date().toLocaleTimeString();
-      const date = new Date().toDateString();
-      const promptId = Math.floor(Math.random() * 1000000);
-      const responseId = Math.floor(Math.random() * 1000000);
-      return { time, date, promptId, responseId }
-    }
-
     if (event.ctrlKey && event.key.toLowerCase() === "c") {
       return;
     }
 
-    if (input.trim() === "atm clear") {
+    if (input.trim() === "clear" || input.trim() === "atm clear") {
       setHistory([]);
       setInput("");
       return;
     }
 
-    if (input.trim() === 'atm help') {
+    // Capture metadata for the prompt right when the user hits Enter
+    const promptMetaData = getMetaData();
 
+    if (input.trim() === 'atm help') {
+      const responseMetaData = getMetaData(); // Get new timestamp for response
       addEntry(
         {
-          id: metaData().promptId,
-          timestamp: metaData().time,
-          date: metaData().date,
+          id: promptMetaData.promptId,
+          timestamp: promptMetaData.time,
+          date: promptMetaData.date,
           user: {
             email: userData?.email || '',
             RPU: userData?.prefs?.RPU || 0,
@@ -64,25 +88,25 @@ const Input = forwardRef<HTMLInputElement>((_, ref) => {
           },
           response:
             [{
-              id: metaData().responseId,
-              timestamp: metaData().time,
-              content: userData !== null ? users_help() : guests_help(),
+              id: responseMetaData.responseId,
+              timestamp: responseMetaData.time,
+              content: userData !== null ? command_response_users_help() : command_response_guests_help(),
             }
             ]
         }
       );
-
       setInput(""); // Clear the input after adding the entry
+      return;
     }
 
     if (input.trim() === 'atm whoami') {
       if (userData == null) return;
-
+      const responseMetaData = getMetaData(); // Get new timestamp for response
       addEntry(
         {
-          id: metaData().promptId,
-          timestamp: metaData().time,
-          date: metaData().date,
+          id: promptMetaData.promptId,
+          timestamp: promptMetaData.time,
+          date: promptMetaData.date,
           user: {
             email: userData.email,
             RPU: userData.prefs?.RPU,
@@ -93,25 +117,25 @@ const Input = forwardRef<HTMLInputElement>((_, ref) => {
           },
           response:
             [{
-              id: metaData().responseId,
-              timestamp: metaData().time,
-              content: whoami(userData.name, userData.email),
+              id: responseMetaData.responseId,
+              timestamp: responseMetaData.time,
+              content: command_response_whoami(userData.name, userData.email),
             }
             ]
         }
       );
-
       setInput(""); // Clear the input after adding the entry
+      return;
     }
 
     if (input.trim() === 'atm details') {
       if (userData == null) return;
-
+      const responseMetaData = getMetaData(); // Get new timestamp for response
       addEntry(
         {
-          id: metaData().promptId,
-          timestamp: metaData().time,
-          date: metaData().date,
+          id: promptMetaData.promptId,
+          timestamp: promptMetaData.time,
+          date: promptMetaData.date,
           user: {
             email: userData.email,
             RPU: userData.prefs?.RPU,
@@ -122,9 +146,9 @@ const Input = forwardRef<HTMLInputElement>((_, ref) => {
           },
           response:
             [{
-              id: metaData().responseId,
-              timestamp: metaData().time,
-              content: details(
+              id: responseMetaData.responseId,
+              timestamp: responseMetaData.time,
+              content: command_response_details(
                 userData.name,
                 userData.email,
                 userData.emailVerification,
@@ -155,6 +179,7 @@ const Input = forwardRef<HTMLInputElement>((_, ref) => {
       );
 
       setInput(""); // Clear the input after adding the entry
+      return;
     }
 
     if (input.trim() === 'atm signup') {
@@ -162,6 +187,7 @@ const Input = forwardRef<HTMLInputElement>((_, ref) => {
 
       setSignupStep(0);
       setInput(""); // Clear the input after
+      return;
     }
 
     if (input.trim() === 'atm login') {
@@ -169,6 +195,7 @@ const Input = forwardRef<HTMLInputElement>((_, ref) => {
 
       setLoginStep(0);
       setInput(""); // Clear the input after
+      return;
     }
 
     if (input.trim() === 'atm reset p') {
@@ -192,6 +219,7 @@ const Input = forwardRef<HTMLInputElement>((_, ref) => {
         }
         handleLogout()
         setInput(""); // Clear the input after
+        return;
       } else {
         setIsLoading(false)
         return
@@ -200,16 +228,16 @@ const Input = forwardRef<HTMLInputElement>((_, ref) => {
 
     if (input.trim() === 'atm predict insights') {
       if (userData == null) return;
+      const responseMetaData = getMetaData(); // Get new timestamp for response
       setIsLoading(true);
-
-      PRUxMRPU_handler()
+      PRUxMRPU_handler(5)
         .then(async (res) => {
           if (res === 'limitWarning') {
             addEntry(
               {
-                id: metaData().promptId,
-                timestamp: metaData().time,
-                date: metaData().date,
+                id: promptMetaData.promptId,
+                timestamp: promptMetaData.time,
+                date: promptMetaData.date,
                 user: {
                   email: userData.email,
                   RPU: userData.prefs?.RPU,
@@ -220,70 +248,399 @@ const Input = forwardRef<HTMLInputElement>((_, ref) => {
                 },
                 response:
                   [{
-                    id: metaData().responseId,
-                    timestamp: metaData().time,
-                    content: await limitWarning(),
+                    id: responseMetaData.responseId,
+                    timestamp: responseMetaData.time,
+                    content: await command_response_limitWarning(),
                   }
                   ]
               }
             );
             setInput(""); // Clear the input after adding the entry
+            setIsLoading(false);
+            return;
+          } else if (res === true) {
+            runMarketInsights().then(async (res) => {
+              const responseMetaData = getMetaData(); // Get new timestamp for response
+              addEntry(
+                {
+                  id: promptMetaData.promptId,
+                  timestamp: promptMetaData.time,
+                  date: promptMetaData.date,
+                  user: {
+                    email: userData.email,
+                    RPU: userData.prefs?.RPU,
+                    MRPU: userData.prefs?.MRPU,
+                  },
+                  prompt: {
+                    text: input,
+                  },
+                  response:
+                    [{
+                      id: responseMetaData.responseId,
+                      timestamp: responseMetaData.time,
+                      content: command_response_atm_predict_insights({
+                        date: res.date,
+                        market_cap_usd: res.market_cap_usd,
+                        volume_usd: res.volume_usd,
+                        btc_dominance: res.btc_dominance,
+                        sentiment_score: res.sentiment_score,
+                        sentiment_classification: res.sentiment_classification,
+                        bitcoin_price_USD: res.bitcoin_price_USD,
+                        previous_bitcoin_price_USD: res.previous_bitcoin_price_USD,
+                        active_cryptocurrencies: res.active_cryptocurrencies,
+                        active_markets: res.active_markets,
+                        trend_overall_market_trend: res.trend_overall_market_trend,
+                        trend_dominance_influence: res.trend_dominance_influence,
+                        market_direction_current_direction: res.market_direction_current_direction,
+                        market_direction_justification: res.market_direction_justification,
+                        signal_strength_strength_evaluation: res.signal_strength_strength_evaluation,
+                        signal_strength_classification: res.sentiment_classification
+                      }),
+                    }
+                    ]
+                }
+              );
+            }, (err) => {
+              console.error(err);
+            }).finally(() => {
+              setInput(""); // Clear the input after adding the entry
+              setIsLoading(false);
+              return;
+            });
           }
-        }).finally(() => {
-          setIsLoading(false);
         })
 
-      // // If getMarketInsights is true, fetch market insights
-      // if (getMarketInsights) {
-      //   console.log('Fetching market insights...');
-      // }
-
-
-      // Get today's date in YYYY-MM-DD format
-      // function getTodayDate() {
-      //   const today = new Date();
-      //   const year = today.getFullYear();
-      //   const month = String(today.getMonth() + 1).padStart(2, '0');
-      //   const day = String(today.getDate()).padStart(2, '0');
-      //   return `${year}-${month}-${day}`;
-      // }
-
-      // // Check on database if insights for today are available
-      // async function checkInsights() {
-      //   const res = await GET_insights(getTodayDate());
-      //   return res
-      // }
-
-      // checkInsights().then((res) => {
-      //   if (res && typeof res !== 'boolean' && res.documents.length === 0) {
-      //     console.log('theres no insights for today');
-      //   } else {
-      //     addEntry(
-      //       {
-      //         id: metaData().promptId,
-      //         timestamp: metaData().time,
-      //         date: metaData().date,
-      //         user: {
-      //           email: userData.email,
-      //           RPU: userData.prefs?.RPU,
-      //           MRPU: userData.prefs?.MRPU,
-      //         },
-      //         prompt: {
-      //           text: input,
-      //         },
-      //         response:
-      //           [{
-      //             id: metaData().responseId,
-      //             timestamp: metaData().time,
-      //             content: market_insights(res),
-      //           }
-      //           ]
-      //       }
-      //     );
-      //   }
-      // })
     }
 
+    if (input.trim() === 'atm predict bulls') {
+      if (userData == null) return;
+      const responseMetaData = getMetaData(); // Get new timestamp for response
+      setIsLoading(true);
+      PRUxMRPU_handler(5)
+        .then(async (res) => {
+          if (res === 'limitWarning') {
+            addEntry(
+              {
+                id: promptMetaData.promptId,
+                timestamp: promptMetaData.time,
+                date: promptMetaData.date,
+                user: {
+                  email: userData.email,
+                  RPU: userData.prefs?.RPU,
+                  MRPU: userData.prefs?.MRPU,
+                },
+                prompt: {
+                  text: input,
+                },
+                response:
+                  [{
+                    id: responseMetaData.responseId,
+                    timestamp: responseMetaData.time,
+                    content: await command_response_limitWarning(),
+                  }]
+              }
+            );
+            setInput(""); // Clear the input after adding the entry
+            setIsLoading(false);
+            return;
+          } else if (res === true) {
+            runMarketBulls().then((res) => {
+              const responseMetaData = getMetaData(); // Get new timestamp for response
+              addEntry(
+                {
+                  id: promptMetaData.promptId,
+                  timestamp: promptMetaData.time,
+                  date: promptMetaData.date,
+                  user: {
+                    email: userData.email,
+                    RPU: userData.prefs?.RPU,
+                    MRPU: userData.prefs?.MRPU,
+                  },
+                  prompt: {
+                    text: input,
+                  },
+                  response:
+                    [{
+                      id: responseMetaData.responseId,
+                      timestamp: responseMetaData.time,
+                      content: command_response_atm_predict_bulls(res),
+                    }]
+                }
+              );
+            }, (err) => {
+              console.error(err);
+            }).finally(() => {
+              setInput(""); // Clear the input after adding the entry
+              setIsLoading(false);
+              return;
+            });
+          }
+        });
+    }
+
+    if (input.trim() === 'atm predict bears') {
+      if (userData == null) return;
+      const responseMetaData = getMetaData(); // Get new timestamp for response
+      setIsLoading(true);
+      PRUxMRPU_handler(5)
+        .then(async (res) => {
+          if (res === 'limitWarning') {
+            addEntry(
+              {
+                id: promptMetaData.promptId,
+                timestamp: promptMetaData.time,
+                date: promptMetaData.date,
+                user: {
+                  email: userData.email,
+                  RPU: userData.prefs?.RPU,
+                  MRPU: userData.prefs?.MRPU,
+                },
+                prompt: {
+                  text: input,
+                },
+                response:
+                  [{
+                    id: responseMetaData.responseId,
+                    timestamp: responseMetaData.time,
+                    content: await command_response_limitWarning(),
+                  }]
+              }
+            );
+            setInput(""); // Clear the input after adding the entry
+            setIsLoading(false);
+            return;
+          } else if (res === true) {
+            runMarketBears().then((res) => {
+              const responseMetaData = getMetaData(); // Get new timestamp for response
+              addEntry(
+                {
+                  id: promptMetaData.promptId,
+                  timestamp: promptMetaData.time,
+                  date: promptMetaData.date,
+                  user: {
+                    email: userData.email,
+                    RPU: userData.prefs?.RPU,
+                    MRPU: userData.prefs?.MRPU,
+                  },
+                  prompt: {
+                    text: input,
+                  },
+                  response:
+                    [{
+                      id: responseMetaData.responseId,
+                      timestamp: responseMetaData.time,
+                      content: command_response_atm_predict_bears(res),
+                    }]
+                }
+              );
+            }, (err) => {
+              console.error(err);
+            }).finally(() => {
+              setInput(""); // Clear the input after adding the entry
+              setIsLoading(false);
+              return;
+            });
+          }
+        });
+    }
+
+    if (input.trim() === 'atm best long') {
+      if (userData == null) return;
+      const responseMetaData = getMetaData(); // Get new timestamp for response
+      setIsLoading(true);
+      PRUxMRPU_handler(5)
+        .then(async (res) => {
+          if (res === 'limitWarning') {
+            addEntry(
+              {
+                id: promptMetaData.promptId,
+                timestamp: promptMetaData.time,
+                date: promptMetaData.date,
+                user: {
+                  email: userData.email,
+                  RPU: userData.prefs?.RPU,
+                  MRPU: userData.prefs?.MRPU,
+                },
+                prompt: {
+                  text: input,
+                },
+                response:
+                  [{
+                    id: responseMetaData.responseId,
+                    timestamp: responseMetaData.time,
+                    content: await command_response_limitWarning(),
+                  }]
+              }
+            );
+            setInput(""); // Clear the input after adding the entry
+            setIsLoading(false);
+            return;
+          } else if (res === true) {
+            runBestLong().then((res) => {
+              const responseMetaData = getMetaData(); // Get new timestamp for response
+              addEntry(
+                {
+                  id: promptMetaData.promptId,
+                  timestamp: promptMetaData.time,
+                  date: promptMetaData.date,
+                  user: {
+                    email: userData.email,
+                    RPU: userData.prefs?.RPU,
+                    MRPU: userData.prefs?.MRPU,
+                  },
+                  prompt: {
+                    text: input,
+                  },
+                  response:
+                    [{
+                      id: responseMetaData.responseId,
+                      timestamp: responseMetaData.time,
+                      content: command_response_atm_best_long(res),
+                    }]
+                }
+              );
+            }, (err) => {
+              console.error(err);
+            }).finally(() => {
+              setInput(""); // Clear the input after adding the entry
+              setIsLoading(false);
+              return;
+            });
+          }
+        });
+    }
+
+    if (input.trim() === 'atm best short') {
+      if (userData == null) return;
+      const responseMetaData = getMetaData(); // Get new timestamp for response
+      setIsLoading(true);
+      PRUxMRPU_handler(5)
+        .then(async (res) => {
+          if (res === 'limitWarning') {
+            addEntry(
+              {
+                id: promptMetaData.promptId,
+                timestamp: promptMetaData.time,
+                date: promptMetaData.date,
+                user: {
+                  email: userData.email,
+                  RPU: userData.prefs?.RPU,
+                  MRPU: userData.prefs?.MRPU,
+                },
+                prompt: {
+                  text: input,
+                },
+                response:
+                  [{
+                    id: responseMetaData.responseId,
+                    timestamp: responseMetaData.time,
+                    content: await command_response_limitWarning(),
+                  }]
+              }
+            );
+            setInput(""); // Clear the input after adding the entry
+            setIsLoading(false);
+            return;
+          } else if (res === true) {
+            runBestShort().then((res) => {
+              const responseMetaData = getMetaData(); // Get new timestamp for response
+              addEntry(
+                {
+                  id: promptMetaData.promptId,
+                  timestamp: promptMetaData.time,
+                  date: promptMetaData.date,
+                  user: {
+                    email: userData.email,
+                    RPU: userData.prefs?.RPU,
+                    MRPU: userData.prefs?.MRPU,
+                  },
+                  prompt: {
+                    text: input,
+                  },
+                  response:
+                    [{
+                      id: responseMetaData.responseId,
+                      timestamp: responseMetaData.time,
+                      content: command_response_atm_best_short(res),
+                    }]
+                }
+              );
+            }, (err) => {
+              console.error(err);
+            }).finally(() => {
+              setInput(""); // Clear the input after adding the entry
+              setIsLoading(false);
+              return;
+            });
+          }
+        });
+    }
+
+    if (input.trim().startsWith('atm forecast')) {
+      if (userData == null) return;
+      const responseMetaData = getMetaData(); // Get new timestamp for response
+      setIsLoading(true);
+      PRUxMRPU_handler(5)
+        .then(async (res) => {
+          if (res === 'limitWarning') {
+            addEntry(
+              {
+                id: promptMetaData.promptId,
+                timestamp: promptMetaData.time,
+                date: promptMetaData.date,
+                user: {
+                  email: userData.email,
+                  RPU: userData.prefs?.RPU,
+                  MRPU: userData.prefs?.MRPU,
+                },
+                prompt: {
+                  text: input,
+                },
+                response:
+                  [{
+                    id: responseMetaData.responseId,
+                    timestamp: responseMetaData.time,
+                    content: await command_response_limitWarning(),
+                  }]
+              }
+            );
+            setInput(""); // Clear the input after adding the entry
+            setIsLoading(false);
+            return;
+          } else if (res === true) {
+            runForecastCoin(input.slice('atm forecast'.length).trim()).then((res) => {
+              const responseMetaData = getMetaData(); // Get new timestamp for response
+              addEntry(
+                {
+                  id: promptMetaData.promptId,
+                  timestamp: promptMetaData.time,
+                  date: promptMetaData.date,
+                  user: {
+                    email: userData.email,
+                    RPU: userData.prefs?.RPU,
+                    MRPU: userData.prefs?.MRPU,
+                  },
+                  prompt: {
+                    text: input,
+                  },
+                  response:
+                    [{
+                      id: responseMetaData.responseId,
+                      timestamp: responseMetaData.time,
+                      content: command_response_atm_forecast_coin(res),
+                    }]
+                }
+              );
+            }, (err) => {
+              console.error(err);
+            }).finally(() => {
+              setInput(""); // Clear the input after adding the entry
+              setIsLoading(false);
+              return;
+            });
+          }
+        });
+    }
   }
 
   useEffect(() => {
@@ -311,7 +668,17 @@ const Input = forwardRef<HTMLInputElement>((_, ref) => {
         ref={ref}
         type="text"
         value={input}
-        onChange={(e) => setInput(e.target.value)}
+        onChange={(e) => {
+          const value = e.target.value;
+
+          if (value.toLowerCase().startsWith('atm forecast')) {
+            const prefix = 'atm forecast';
+            const rest = value.slice(prefix.length); // everything after prefix
+            setInput(`${prefix}${rest.toUpperCase()}`);
+          } else {
+            setInput(value);
+          }
+        }}
         onKeyDown={handleKeyDown}
         className="bg-transparent border-none outline-none text-green-200 font-mono w-full"
         autoFocus
