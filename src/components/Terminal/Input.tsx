@@ -11,7 +11,8 @@ import {
   command_response_atm_predict_bears,
   command_response_atm_best_long,
   command_response_atm_best_short,
-  command_response_atm_forecast_coin
+  command_response_atm_forecast_coin,
+  command_response_feedback,
 } from "../../commands";
 import { useNavigate } from "react-router";
 import { logout } from "../../apis/backend/auth/logout";
@@ -35,7 +36,6 @@ const Input = forwardRef<HTMLInputElement>((_, ref) => {
   const { setLoginStep } = useLogin();
   const [input, setInput] = useState<string>("");
   const { addEntry, setHistory } = useHistory();
-
   const navigate = useNavigate();
 
   // Helper function to get metadata with a fresh timestamp
@@ -91,6 +91,41 @@ const Input = forwardRef<HTMLInputElement>((_, ref) => {
               id: responseMetaData.responseId,
               timestamp: responseMetaData.time,
               content: userData !== null ? command_response_users_help() : command_response_guests_help(),
+            }
+            ]
+        }
+      );
+      setInput(""); // Clear the input after adding the entry
+      return;
+    }
+
+    if (input.trim() === 'atm whitepaper') {
+      window.open('https://drive.google.com/file/d/1XqUFw0Z0oarDEpU_GeYxhWjilZQsCMgN/view', '_blank');
+      setInput(""); // Clear the input after adding the entry
+      return;
+    }
+
+    if (input.trim() === 'atm feedback') {
+      if (userData == null) return;
+      const responseMetaData = getMetaData(); // Get new timestamp for response
+      addEntry(
+        {
+          id: promptMetaData.promptId,
+          timestamp: promptMetaData.time,
+          date: promptMetaData.date,
+          user: {
+            email: userData.email,
+            RPU: userData.prefs?.RPU,
+            MRPU: userData.prefs?.MRPU,
+          },
+          prompt: {
+            text: input,
+          },
+          response:
+            [{
+              id: responseMetaData.responseId,
+              timestamp: responseMetaData.time,
+              content: command_response_feedback(),
             }
             ]
         }
@@ -682,6 +717,7 @@ const Input = forwardRef<HTMLInputElement>((_, ref) => {
         onKeyDown={handleKeyDown}
         className="bg-transparent border-none outline-none text-green-200 font-mono w-full"
         autoFocus
+        aria-label="Terminal input: enter ATM command"
       />
       <span className="animate-pulse duration-10 text-green-400">{input.length === 0 ? "█" : ""}</span>
     </div>
