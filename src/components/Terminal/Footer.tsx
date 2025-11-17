@@ -10,7 +10,7 @@ export default function Footer() {
                 Type <span className="text-white mx-2 !text-sm">'atm help'</span> for commands.
             </div>
             <div className="!text-sm flex items-center">
-                &copy; {new Date().getFullYear()} ATM
+               <span>&copy; {new Date().getFullYear()} ATM</span>
                 <DotIcon size={20} />
                 <a href="https://github.com/fifolio/ATM/" target="_blank" aria-label="Github repository link">
                     <Github size={13.5} />
