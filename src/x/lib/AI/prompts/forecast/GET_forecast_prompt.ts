@@ -89,30 +89,33 @@ ${JSON.stringify(requestedCoinInsights)}
 OUTPUT SCHEMA:
 
 {
-  "coin_name": "",
-  "coin_symbol": "",
-  "trade_type": "long" | "short",
-  "entry_price": 0.0,
-  "stop_loss_price": 0.0,
-  "stop_loss_distance_pct": 0.0,
-  "take_profit_price": 0.0,
-  "take_profit_distance_pct": 0.0,
-  "risk_reward_ratio": 0.0,
-  "expected_duration": { "value": 0, "unit": "weeks|months" },
-  "confidence_score": 0.0,            // 0..1 or 0..100
-  "signal_strength": "",              // copy from input plus normalized score
-  "reasoning_summary": "",            // short human-readable rationale
-  "detailed_rationale": "",           // in-depth bullets: indicators, patterns, news signals
-  "red_flags": ["string", "..."],     // risks and warnings
-  "assumptions": ["string", "..."],   // any assumptions made (data freshness, slippage)
+  "coin_name": "", // STRINGS ONLY
+  "coin_symbol": "", // STRINGS ONLY
+  "trade_type": "long" | "short", // STRINGS ONLY
+  "entry_price": 0.0, // NUMBERS ONLY
+  "stop_loss_price": 0.0, // NUMBERS ONLY
+  "stop_loss_distance_pct": 0.0, // NUMBERS ONLY
+  "take_profit_price": 0.0, // NUMBERS ONLY
+  "take_profit_distance_pct": 0.0, // NUMBERS ONLY
+  "risk_reward_ratio": 0.0, // NUMBERS ONLY
+  "expected_duration": { 
+      "value": 0, // NUMBERS ONLY
+      "unit": "weeks|months" // STRINGS ONLY
+   },
+  "confidence_score": 0.0,            // NUMBERS ONLY, 0..1 or 0..100
+  "signal_strength": "",              // STRINGS ONLY, copy from input plus normalized score
+  "reasoning_summary": "",            // STRINGS ONLY, short human-readable rationale
+  "detailed_rationale": "",           // STRINGS ONLY, in-depth bullets: indicators, patterns, news signals
+  "red_flags": ["string", "..."],     // STRINGS ONLY, risks and warnings
+  "assumptions": ["string", "..."],   // STRINGS ONLY, any assumptions made (data freshness, slippage)
   "recommendations": {                // extra operational guidance
-     "order_type": "market|limit",
-     "leverage_suggested": 1,
-     "notes": "string"
+     "order_type": "market|limit", // STRINGS ONLY
+     "leverage_suggested": 1, // NUMBERS ONLY
+     "notes": "string" // STRINGS ONLY
   },
   "meta": {
-     "timestamp_utc": "YYYY-MM-DDTHH:MM:SSZ",
-     "model_version": "string"
+     "timestamp_utc": "YYYY-MM-DDTHH:MM:SSZ", // STRINGS ONLY
+     "model_version": "string" // STRINGS ONLY
   }
 }
 `;
