@@ -105,7 +105,7 @@ OUTPUT SCHEMA:
   "confidence_score": 0.0,            // NUMBERS ONLY, 0..1 or 0..100
   "signal_strength": "",              // STRINGS ONLY, copy from input plus normalized score
   "reasoning_summary": "",            // STRINGS ONLY, short human-readable rationale
-  "detailed_rationale": "",           // STRINGS ONLY, in-depth bullets: indicators, patterns, news signals
+  "detailed_rationale": "",           // STRINGS ONLY, indicators, patterns, news signals
   "red_flags": ["string", "..."],     // STRINGS ONLY, risks and warnings
   "assumptions": ["string", "..."],   // STRINGS ONLY, any assumptions made (data freshness, slippage)
   "recommendations": {                // extra operational guidance
