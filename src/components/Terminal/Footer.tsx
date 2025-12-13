@@ -17,7 +17,7 @@ export default function Footer() {
                 </a>
             </div>
             <div>
-                <div className="!text-sm">Automission.ai can make mistakes.</div>
+                <div className="!text-sm">Automission can make mistakes.</div>
             </div>
         </div>
     )
