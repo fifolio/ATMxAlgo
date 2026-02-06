@@ -699,7 +699,7 @@ const Input = forwardRef<HTMLInputElement>((_, ref) => {
   return (
     <div className="flex space-x-1">
       <div className="text-green-400">
-        {`${userData?.name || 'guest'}@automission.ai:~$`}
+        {`${userData?.name || 'guest'}@automission:~$`}
       </div>
       <input
         ref={ref}

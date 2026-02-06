@@ -15,7 +15,7 @@ async function command_response_limitWarning() {
                 You can check your current usage with the "atm details" command.
                     
                 Tip: You can continue using all free commands in the meantime.
-                Thanks for using Automission.ai!
+                Thanks for using Automission!
         `
     )
 }

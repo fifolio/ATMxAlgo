@@ -5,7 +5,7 @@ export default function LoginFooter() {
                 Press <span className="text-white">Esc</span> to exit the login process
             </div>
             <div className="!text-sm">
-                Automission.ai can make mistakes.
+                Automission can make mistakes.
             </div>
         </div>
     )

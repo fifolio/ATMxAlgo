@@ -5,7 +5,7 @@ export default function SignupFooter() {
                 Press <span className="text-white">Esc</span> to exit the signup process
             </div>
             <div className="!text-sm">
-                Automission.ai can make mistakes.
+                Automission can make mistakes.
             </div>
         </div>
     )

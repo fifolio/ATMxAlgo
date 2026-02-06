@@ -12,7 +12,7 @@ function command_response_feedback() {
                 please use the following link to access the ATM project's GitHub issues page and provide a detailed report:  
                 https://github.com/fifolio/ATM/issues 
                     
-                Thank you for helping us improve Automission.ai. Your input really matters!  
+                Thank you for helping us improve Automission. Your input really matters!  
         `
     )
 }

@@ -2,7 +2,7 @@ function command_response_signupSteps() {
   return [
     {
       welcome: `
-            Welcome to Automission.ai — glad to have you aboard!
+            Welcome to Automission — glad to have you aboard!
 
             To get started, we'll guide you through a quick account creation process.
             Please follow the prompts step-by-step:
