@@ -41,9 +41,9 @@ async function runMarketBulls() {
 
         // Filter bullish coins
         const bullishCoins = allMarketCoinsJSON.filter((coin: BullishCoinMarketData) => {
-            const nearDailyHigh = (coin.high_24h - coin.current_price) / coin.high_24h <= 0.02;
-            const nearATH = coin.ath_change_percentage > -10;
-            const current_price = coin.current_price < 10;
+            const nearDailyHigh = (coin.high_24h - coin.current_price) / coin.high_24h <= 0.10;
+            const nearATH = coin.ath_change_percentage > -20;
+            // const current_price = coin.current_price < 10;
 
             return (
                 coin.price_change_percentage_24h_in_currency > 0 &&
@@ -51,8 +51,8 @@ async function runMarketBulls() {
                 // coin.market_cap > 5000000 &&
                 // coin.total_volume > 1000000 &&
                 nearDailyHigh &&
-                nearATH &&
-                current_price
+                nearATH
+                // current_price
             );
         });
 
@@ -62,29 +62,29 @@ async function runMarketBulls() {
                 historicalBullishDocID: String(todaysHistoricalBullsID),
                 symbol: bullishCoins[i].symbol,
                 name: bullishCoins[i].name,
-                current_price: bullishCoins[i].current_price,
+                current_price: Number(bullishCoins[i].current_price),
                 market_cap: bullishCoins[i].market_cap,
                 market_cap_rank: bullishCoins[i].market_cap_rank,
                 fully_diluted_valuation: bullishCoins[i].fully_diluted_valuation,
                 total_volume: bullishCoins[i].total_volume,
-                high_24h: bullishCoins[i].high_24h,
-                low_24h: bullishCoins[i].low_24h,
+                high_24h: Number(bullishCoins[i].high_24h),
+                low_24h: Number(bullishCoins[i].low_24h),
                 price_change_24h: bullishCoins[i].price_change_24h,
                 price_change_percentage_24h: bullishCoins[i].price_change_percentage_24h,
                 market_cap_change_24h: Number.isInteger(bullishCoins[i].market_cap_change_24h) ? bullishCoins[i].market_cap_change_24h : 0,
-                market_cap_change_percentage_24h: bullishCoins[i].market_cap_change_percentage_24h,
-                circulating_supply: bullishCoins[i].circulating_supply,
-                total_supply: bullishCoins[i].total_supply,
-                max_supply: bullishCoins[i].max_supply,
-                ath: bullishCoins[i].ath,
-                ath_change_percentage: bullishCoins[i].ath_change_percentage,
+                market_cap_change_percentage_24h: Number(bullishCoins[i].market_cap_change_percentage_24h),
+                circulating_supply: Number(bullishCoins[i].circulating_supply),
+                total_supply: Number(bullishCoins[i].total_supply),
+                max_supply: Number(bullishCoins[i].max_supply),
+                ath: Number(bullishCoins[i].ath),
+                ath_change_percentage: Number(bullishCoins[i].ath_change_percentage),
                 ath_date: bullishCoins[i].ath_date,
-                atl: bullishCoins[i].atl,
-                atl_change_percentage: bullishCoins[i].atl_change_percentage,
+                atl: Number(bullishCoins[i].atl),
+                atl_change_percentage: Number(bullishCoins[i].atl_change_percentage),
                 atl_date: bullishCoins[i].atl_date,
                 last_updated: bullishCoins[i].last_updated,
-                price_change_percentage_24h_in_currency: bullishCoins[i].price_change_percentage_24h_in_currency,
-                price_change_percentage_7d_in_currency: bullishCoins[i].price_change_percentage_7d_in_currency,
+                price_change_percentage_24h_in_currency: Number(bullishCoins[i].price_change_percentage_24h_in_currency),
+                price_change_percentage_7d_in_currency: Number(bullishCoins[i].price_change_percentage_7d_in_currency),
             }).catch((err) => {
                 console.error("Error posting today's bulls:", err);
             })

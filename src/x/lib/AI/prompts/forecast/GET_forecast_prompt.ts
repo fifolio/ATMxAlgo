@@ -100,7 +100,7 @@ OUTPUT SCHEMA:
   "risk_reward_ratio": 0.0, // NUMBERS ONLY
   "expected_duration": { 
       "value": 0, // NUMBERS ONLY
-      "unit": "weeks|months" // STRINGS ONLY
+      "unit": "days|weeks" // STRINGS ONLY
    },
   "confidence_score": 0.0,            // NUMBERS ONLY, 0..1 or 0..100
   "signal_strength": "",              // STRINGS ONLY, copy from input plus normalized score

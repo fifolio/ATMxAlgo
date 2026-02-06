@@ -39,11 +39,13 @@ async function runMarketBears() {
 
         const allMarketCoinsJSON = await allMarketCoins.json();
 
+        console.log(allMarketCoins)
+
         // Filter bearish coins
         const bearishCoins = allMarketCoinsJSON.filter((coin: BearishCoinMarketData) => {
-            const nearDailyLow = (coin.current_price - coin.low_24h) / coin.low_24h < 0.02;
-            const farBelowATH = coin.ath_change_percentage < -50; // e.g. 50% or more below ATH
-            const current_price = coin.current_price < 10;
+            const nearDailyLow = (coin.current_price - coin.low_24h) / coin.low_24h < 0.10;
+            const farBelowATH = coin.ath_change_percentage < -20; // e.g. 20% or more below ATH
+            // const current_price = coin.current_price < 10;
 
             return (
                 coin.price_change_percentage_24h_in_currency < 0 &&
@@ -51,8 +53,8 @@ async function runMarketBears() {
                 // coin.market_cap > 5000000 &&
                 // coin.total_volume > 1000000 &&
                 nearDailyLow &&
-                farBelowATH &&
-                current_price
+                farBelowATH 
+                // current_price
             );
         });
 
@@ -62,29 +64,29 @@ async function runMarketBears() {
                 historicalBearishDocID: String(todaysHistoricalBearsID),
                 symbol: bearishCoins[i].symbol,
                 name: bearishCoins[i].name,
-                current_price: bearishCoins[i].current_price,
+                current_price: Number(bearishCoins[i].current_price),
                 market_cap: bearishCoins[i].market_cap,
                 market_cap_rank: bearishCoins[i].market_cap_rank,
                 fully_diluted_valuation: bearishCoins[i].fully_diluted_valuation,
                 total_volume: bearishCoins[i].total_volume,
-                high_24h: bearishCoins[i].high_24h,
-                low_24h: bearishCoins[i].low_24h,
-                price_change_24h: bearishCoins[i].price_change_24h,
-                price_change_percentage_24h: bearishCoins[i].price_change_percentage_24h,
+                high_24h: Number(bearishCoins[i].high_24h),
+                low_24h: Number(bearishCoins[i].low_24h),
+                price_change_24h: Number(bearishCoins[i].price_change_24h),
+                price_change_percentage_24h: Number(bearishCoins[i].price_change_percentage_24h),
                 market_cap_change_24h: Number.isInteger(bearishCoins[i].market_cap_change_24h) ? bearishCoins[i].market_cap_change_24h : 0,
-                market_cap_change_percentage_24h: bearishCoins[i].market_cap_change_percentage_24h,
-                circulating_supply: bearishCoins[i].circulating_supply,
-                total_supply: bearishCoins[i].total_supply,
-                max_supply: bearishCoins[i].max_supply,
-                ath: bearishCoins[i].ath,
-                ath_change_percentage: bearishCoins[i].ath_change_percentage,
+                market_cap_change_percentage_24h: Number(bearishCoins[i].market_cap_change_percentage_24h),
+                circulating_supply: Number(bearishCoins[i].circulating_supply),
+                total_supply: Number(bearishCoins[i].total_supply),
+                max_supply: Number(bearishCoins[i].max_supply),
+                ath: Number(bearishCoins[i].ath),
+                ath_change_percentage: Number(bearishCoins[i].ath_change_percentage),
                 ath_date: bearishCoins[i].ath_date,
-                atl: bearishCoins[i].atl,
-                atl_change_percentage: bearishCoins[i].atl_change_percentage,
+                atl: Number(bearishCoins[i].atl),
+                atl_change_percentage: Number(bearishCoins[i].atl_change_percentage),
                 atl_date: bearishCoins[i].atl_date,
                 last_updated: bearishCoins[i].last_updated,
-                price_change_percentage_24h_in_currency: bearishCoins[i].price_change_percentage_24h_in_currency,
-                price_change_percentage_7d_in_currency: bearishCoins[i].price_change_percentage_7d_in_currency,
+                price_change_percentage_24h_in_currency: Number(bearishCoins[i].price_change_percentage_24h_in_currency),
+                price_change_percentage_7d_in_currency: Number(bearishCoins[i].price_change_percentage_7d_in_currency),
             }).catch((err) => {
                 console.error("Error posting today's Bears:", err);
             })
