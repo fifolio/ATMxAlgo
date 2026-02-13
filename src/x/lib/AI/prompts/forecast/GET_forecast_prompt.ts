@@ -11,7 +11,7 @@ interface MarketInsights {
     volume_usd: number;
     btc_dominance: number;
     sentiment_score: number;
-    sentiment_classification: "Positive" | "Neutral" | "Negative" | string;
+    sentiment_classification: "Positive" | "Negative" | string;
     bitcoin_price_USD: number;
     previous_bitcoin_price_USD: number;
     active_cryptocurrencies: number;

@@ -72,7 +72,7 @@ Instructions:
 
 2. Market Direction:
 
-* Determine the current market direction: bullish, bearish, or neutral.
+* Determine the current market direction: bullish or bearish.
 * Justify the conclusion using the sentiment score and classification, market cap movement, and trading volume.
 
 3. Signal Strength:
