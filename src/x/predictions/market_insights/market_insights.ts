@@ -77,7 +77,7 @@ async function runMarketInsights() {
         const cb = await resp1.json();
 
         // Fetch Alternative.me global market data (with CORS proxy)
-        const resp2 = await fetch('https://api.allorigins.win/raw?url=https://api.alternative.me/v2/global/');
+        const resp2 = await fetch('https://go.x2u.in/proxy?email=FirasDabbabi@my.uopeople.edu&apiKey=8c413a47&url=https://api.alternative.me/v2/global/');
 
         if (!resp2.ok) {
           throw new Error(`Alternative.me API error: ${resp2.status} ${resp2.statusText}`);
