@@ -43,10 +43,10 @@ interface MarketSentimentResponse {
 
 export default function GET_market_insights_prompt(data: MarketSentimentResponse) {
 
-    // Ddistribution objects from the data
-    const { cb, am } = data;
+  // Ddistribution objects from the data
+  const { cb, am } = data;
 
-    return `
+  return `
 You are an expert financial analyst specializing in cryptocurrency markets. Using the following data, provide a detailed market insight report:
 
 Data:
@@ -92,7 +92,7 @@ Ensure the analysis is thorough, data-driven, and suitable for professional inve
   "volume_usd": ,
   "btc_dominance": ,
   "sentiment_score": ,
-  "sentiment_classification": ,
+  "sentiment_classification": [ONLY: Bullish OR Bearish (NO Neutral)],
   "bitcoin_price_USD: ,
   "previous_bitcoin_price_USD: ,
   "active_cryptocurrencies: ,
@@ -103,12 +103,12 @@ Ensure the analysis is thorough, data-driven, and suitable for professional inve
       "dominance_influence": 
     },
     "market_direction": {
-      "current_direction": ,
+      "current_direction": [ONLY: Bullish OR Bearish (NO Neutral)],
       "justification": 
     },
     "signal_strength": {
       "strength_evaluation": ,
-      "classification": 
+      "classification": [ONLY: Bullish OR Bearish (NO Neutral)] 
     }
 } 
     `
