@@ -11,7 +11,7 @@ async function AI_model(prompt: string) {
   await new Promise(resolve => setTimeout(resolve, 60000));
 
   const response = await ai.models.generateContent({
-    model: "gemini-flash-latest",
+    model: "gemini-3-flash-preview",
     contents: prompt,
   });
   return response.text;
